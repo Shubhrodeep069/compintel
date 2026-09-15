@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  compensationRecords CompensationRecord[]
+}
+
+model CompensationRecord {
+  id                Int      @id @default(autoincrement())
+  companyId         Int
+  role              String
+  level             String
+  location          String
+  baseSalary        Decimal  @db.Decimal(12, 2)
+  bonus             Decimal  @default(0) @db.Decimal(12, 2)
+  stock             Decimal  @default(0) @db.Decimal(12, 2)
+  totalCompensation Decimal  @db.Decimal(12, 2)
+  currency          String   @default("INR")
+  createdAt         DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([role])
+  @@index([level])
+  @@index([location])
+  @@index([totalCompensation])
+}
